@@ -1,0 +1,26 @@
+[gd_scene load_steps=4 format=2]
+
+[ext_resource path="res://texture/noose.png" type="Texture" id=1]
+[ext_resource path="res://entity/Noose.gd" type="Script" id=2]
+
+[sub_resource type="CircleShape2D" id=1]
+radius = 16.5195
+
+[node name="Noose" type="Node2D"]
+script = ExtResource( 2 )
+
+[node name="Sprite" type="Sprite" parent="."]
+texture = ExtResource( 1 )
+
+[node name="Rope Point" type="Node2D" parent="."]
+position = Vector2( -7.41565, 7.41565 )
+
+[node name="Rope" type="Line2D" parent="."]
+width = 1.5
+default_color = Color( 0.368627, 0.0352941, 0.0352941, 1 )
+
+[node name="Hitbox" type="Area2D" parent="."]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Hitbox"]
+shape = SubResource( 1 )
+[connection signal="area_entered" from="Hitbox" to="." method="_on_Hitbox_area_entered"]

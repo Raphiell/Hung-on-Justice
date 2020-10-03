@@ -1,7 +1,8 @@
-[gd_scene load_steps=6 format=2]
+[gd_scene load_steps=7 format=2]
 
 [ext_resource path="res://entity/Player.tscn" type="PackedScene" id=1]
 [ext_resource path="res://texture/background.png" type="Texture" id=2]
+[ext_resource path="res://entity/Swing Point.tscn" type="PackedScene" id=3]
 
 [sub_resource type="RectangleShape2D" id=1]
 extents = Vector2( 95.0657, 5.22509 )
@@ -40,3 +41,12 @@ shape = SubResource( 3 )
 
 [node name="CollisionPolygon2D2" type="CollisionPolygon2D" parent="StaticBody2D"]
 polygon = PoolVector2Array( -31.6638, -9.01661, 52.6287, -30.4672, 121.78, -7.86, 121.394, -4.51869, 119.338, -2.59101, 52.3499, -24.4533, -33.206, -2.97654, -34.4911, -5.54678 )
+
+[node name="Swing Point" parent="." instance=ExtResource( 3 )]
+position = Vector2( 257.868, -60.1247 )
+
+[node name="Swing Point2" parent="." instance=ExtResource( 3 )]
+position = Vector2( 379.378, -227.027 )
+
+[node name="Swing Point3" parent="." instance=ExtResource( 3 )]
+position = Vector2( 99.3451, -293.369 )
