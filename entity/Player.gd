@@ -46,6 +46,7 @@ var swing_point = null
 var swing_speed = 600
 var swinging = false
 var swing_acceleration = 5
+var noose = null
 
 # Nodes
 onready var character_sprite = $Character
@@ -151,6 +152,9 @@ func regular_state(delta):
 		acceleration = regular_acceleration
 		movement_speed = max_movement_speed
 	
+	if(swinging and is_on_wall()):
+		movement_vector.x = 0
+	
 	# Animation
 	if(abs(movement_vector.x) > 50 or lateral_input != 0):
 		character_sprite.texture = run_texture
@@ -167,7 +171,7 @@ func regular_state(delta):
 	
 	# Noose
 	if(Input.is_action_just_pressed("left_click") and noose_available):
-		var noose = noose_scene.instance()
+		noose = noose_scene.instance()
 		noose.movement_vector = (get_global_mouse_position() - global_transform.origin).normalized()
 		get_tree().root.add_child(noose)
 		noose.global_transform.origin = global_transform.origin
@@ -176,8 +180,12 @@ func regular_state(delta):
 func swing_state(delta):
 	move_and_slide(movement_vector, Vector2.UP)
 	
-	if(global_transform.origin.distance_to(swing_point) < 20):
+	if(global_transform.origin.distance_to(swing_point) < 20 or
+	   movement_vector.normalized().dot(global_transform.origin.direction_to(swing_point)) < 0.98):
 		state = states.regular
+		swing_point = null
+		if(is_instance_valid(noose)):
+			noose.return_noose()
 
 func jump():
 	# If you are on the floor

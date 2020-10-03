@@ -17,28 +17,29 @@ onready var rope = $Rope
 onready var rope_point = $"Rope Point"
 
 func _process(delta):
+	var noose_distance_from_player = global_transform.origin.distance_to(global.player.global_transform.origin)
 	if(state == states.returning):
 		movement_vector = (global.player.global_transform.origin - global_transform.origin).normalized()
 		global_transform.origin += movement_vector * return_speed
+		# Remove noose once it's close enough back to you
+		if(noose_distance_from_player <= 10):
+			global.player.noose_available = true
+			queue_free()
 	elif(state == states.sending):
 		global_transform.origin += movement_vector * movement_speed
 	elif(state == states.attached):
 		pass
 	
-	var noose_distance_from_player = global_transform.origin.distance_to(global.player.global_transform.origin)
-	
 	# If noose is too far away, return it to player
 	if(noose_distance_from_player > noose_max_range):
 		state = states.returning
 	
-	# Remove noose once it's close enough back to you
-	if(noose_distance_from_player <= 10):
-		global.player.noose_available = true
-		queue_free()
-	
 	rope.clear_points()
 	rope.add_point(rope_point.transform.origin)
 	rope.add_point(global.player.global_transform.origin - transform.origin)
+
+func return_noose():
+	state = states.returning
 
 func _on_Hitbox_area_entered(area):
 	if(area.get_parent().type == "Swing Point"):

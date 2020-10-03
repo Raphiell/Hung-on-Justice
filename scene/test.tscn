@@ -40,7 +40,7 @@ position = Vector2( 475.6, -188.74 )
 shape = SubResource( 3 )
 
 [node name="CollisionPolygon2D2" type="CollisionPolygon2D" parent="StaticBody2D"]
-polygon = PoolVector2Array( -31.6638, -9.01661, 52.6287, -30.4672, 121.78, -7.86, 121.394, -4.51869, 119.338, -2.59101, 52.3499, -24.4533, -33.206, -2.97654, -34.4911, -5.54678 )
+polygon = PoolVector2Array( -36.1693, -5.51229, 52.6287, -30.4672, 123.954, -5.32336, 120.176, -1.16676, 52.3707, -22.9123, -33.2408, -0.599941 )
 
 [node name="Swing Point" parent="." instance=ExtResource( 3 )]
 position = Vector2( 257.868, -60.1247 )
@@ -50,3 +50,9 @@ position = Vector2( 379.378, -227.027 )
 
 [node name="Swing Point3" parent="." instance=ExtResource( 3 )]
 position = Vector2( 99.3451, -293.369 )
+
+[node name="Swing Point4" parent="." instance=ExtResource( 3 )]
+position = Vector2( 576.345, -163.369 )
+
+[node name="Swing Point5" parent="." instance=ExtResource( 3 )]
+position = Vector2( 474.324, -188.457 )
