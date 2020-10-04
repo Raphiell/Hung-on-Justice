@@ -7,6 +7,7 @@ var movement_vector : Vector2 = Vector2.UP
 var launch_force : float = rand_range(300, 500)
 var pickup_timer : float = 0.2 # How many seconds before it can be picked up
 var pickupable = false
+var noosed = false
 
 # Nodes
 onready var sprite = $Sprite

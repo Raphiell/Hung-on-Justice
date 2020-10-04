@@ -1,5 +1,12 @@
 extends Node2D
 
+enum states {
+	walking,
+	shooting
+}
+
+var state = states.walking
+
 var type = "Enemy"
 
 # Hit
@@ -24,8 +31,12 @@ var health_pickup_scene = preload("res://entity/Health Pickup.tscn")
 onready var sprite = $Sprite
 onready var rope_point = $"Rope Point"
 onready var ray = $RayCast2D
+onready var anim = $AnimationPlayer
 
 signal kill
+
+func _ready():
+	anim.play("walk")
 
 func _process(delta):
 	# Face player

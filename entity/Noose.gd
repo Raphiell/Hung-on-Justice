@@ -16,11 +16,16 @@ var noose_max_range : float = 200 # How far it can be from the player before ret
 var state = states.sending
 var grabbed_item = null
 
+# How long before noose can start hitting stuff
+var noose_disabled_timer = 0.05
+
 # Nodes
 onready var rope = $Rope
 onready var rope_point = $"Rope Point"
 
 func _physics_process(delta):
+	if(noose_disabled_timer > 0):
+		noose_disabled_timer -= delta
 	var noose_distance_from_player = global_transform.origin.distance_to(global.player.global_transform.origin)
 	if(state == states.returning):
 		movement_vector = (global.player.global_transform.origin - global_transform.origin).normalized()
@@ -58,15 +63,16 @@ func return_noose():
 	state = states.returning
 
 func _on_Hitbox_area_entered(area):
-	if(area.get_parent().get("type") == "Swing Point"):
-		state = states.attached
-		global_transform.origin = area.global_transform.origin
-		global.player.emit_signal("swing_point_attached", global_transform.origin)
-	if(area.get_parent().get("type") == "Enemy"):
-		state = states.attached
-		global_transform.origin = area.get_parent().get_node("Rope Point").global_transform.origin
-		global.player.emit_signal("enemy_attached", global_transform.origin)
-	if(area.get_parent().get("type") == "Health Pickup" and area.get_parent().get("pickupable")):
-		state = states.return_with_item
-		grabbed_item = area.get_parent()
-		
+	if(noose_disabled_timer <= 0):
+		if(area.get_parent().get("type") == "Swing Point" and state != states.return_with_item):
+			state = states.attached
+			global_transform.origin = area.global_transform.origin
+			global.player.emit_signal("swing_point_attached", global_transform.origin)
+		if(area.get_parent().get("type") == "Enemy" and state != states.return_with_item):
+			state = states.attached
+			global_transform.origin = area.get_parent().get_node("Rope Point").global_transform.origin
+			global.player.emit_signal("enemy_attached", global_transform.origin)
+		if(area.get_parent().get("type") == "Health Pickup" and area.get_parent().get("pickupable")):
+			state = states.return_with_item
+			grabbed_item = area.get_parent()
+			
