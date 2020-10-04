@@ -1,8 +1,9 @@
-[gd_scene load_steps=7 format=2]
+[gd_scene load_steps=8 format=2]
 
 [ext_resource path="res://entity/Player.tscn" type="PackedScene" id=1]
 [ext_resource path="res://texture/background.png" type="Texture" id=2]
 [ext_resource path="res://entity/Swing Point.tscn" type="PackedScene" id=3]
+[ext_resource path="res://entity/Shooter.tscn" type="PackedScene" id=4]
 
 [sub_resource type="RectangleShape2D" id=1]
 extents = Vector2( 95.0657, 5.22509 )
@@ -56,3 +57,12 @@ position = Vector2( 576.345, -163.369 )
 
 [node name="Swing Point5" parent="." instance=ExtResource( 3 )]
 position = Vector2( 474.324, -188.457 )
+
+[node name="Shooter" parent="." instance=ExtResource( 4 )]
+position = Vector2( 472.91, -142.595 )
+
+[node name="Shooter2" parent="." instance=ExtResource( 4 )]
+position = Vector2( 50.5401, -55.955 )
+
+[node name="Shooter3" parent="." instance=ExtResource( 4 )]
+position = Vector2( 277.97, 31.5875 )

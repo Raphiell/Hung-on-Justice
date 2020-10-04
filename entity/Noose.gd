@@ -46,3 +46,8 @@ func _on_Hitbox_area_entered(area):
 		state = states.attached
 		global_transform.origin = area.global_transform.origin
 		global.player.emit_signal("swing_point_attached", global_transform.origin)
+	if(area.get_parent().type == "Enemy"):
+		state = states.attached
+		global_transform.origin = area.get_parent().get_node("Rope Point").global_transform.origin
+		global.player.emit_signal("enemy_attached", global_transform.origin)
+		

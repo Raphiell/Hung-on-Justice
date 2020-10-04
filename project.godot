@@ -84,6 +84,11 @@ exit={
  ]
 }
 
+[layer_names]
+
+2d_physics/layer_1="Noose"
+2d_physics/layer_2="Attack"
+
 [rendering]
 
 quality/driver/driver_name="GLES2"

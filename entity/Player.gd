@@ -38,6 +38,8 @@ export(float) var dodge_roll_cooldown_max = 0.5 # Seconds before you can dodge r
 var facing : int = 1
 onready var idle_texture = preload("res://texture/player/hero_standing.png")
 onready var run_texture = preload("res://texture/player/hero_running.png")
+onready var jump_texture = preload("res://texture/player/hero_jump_noose.png")
+var falling_anim_played = false
 
 # Noose
 onready var noose_scene = preload("res://entity/Noose.tscn")
@@ -57,6 +59,7 @@ onready var anim = $AnimationPlayer
 
 # Signals
 signal swing_point_attached
+signal enemy_attached
 
 func _ready():
 	Input.set_mouse_mode(Input.MOUSE_MODE_HIDDEN)
@@ -156,19 +159,28 @@ func regular_state(delta):
 		movement_vector.x = 0
 	
 	# Animation
-	if(abs(movement_vector.x) > 50 or lateral_input != 0):
+	if((abs(movement_vector.x) > 50 or lateral_input != 0) and !jumping and !swinging):
 		character_sprite.texture = run_texture
 		character_sprite.vframes = 4
 		character_sprite.hframes = 3
 		character_sprite.position.y = 7
 		anim.play("run")
-	else:
+	elif((abs(movement_vector.x) < 50 or lateral_input == 0) and !jumping and !swinging):
 		character_sprite.texture = idle_texture
 		character_sprite.vframes = 2
 		character_sprite.hframes = 4
 		character_sprite.position.y = 0
 		anim.play("idle")
-	
+	elif(jumping or swinging):
+		# Falling
+		if(movement_vector.y > 0 and !falling_anim_played):
+			anim.play("jump_down")
+			falling_anim_played = true
+		character_sprite.texture = jump_texture
+		character_sprite.vframes = 3
+		character_sprite.hframes = 4
+		character_sprite.position.y = 0
+		
 	# Noose
 	if(Input.is_action_just_pressed("left_click") and noose_available):
 		noose = noose_scene.instance()
@@ -193,6 +205,8 @@ func jump():
 		movement_vector.y = -jump_strength
 		jumping = true
 		deceleration_weight = 0.05
+		anim.play("jump_up")
+		falling_anim_played = false
 	else:
 		# Start the buffer
 		jump_buffer = jump_buffer_max
@@ -212,6 +226,12 @@ func dodge():
 		dodge_buffer = dodge_buffer_max
 
 func _on_Player_swing_point_attached(point):
+	anim.play("jump_up")
+	character_sprite.texture = jump_texture
+	character_sprite.vframes = 3
+	character_sprite.hframes = 4
+	character_sprite.position.y = 0
+	falling_anim_played = false
 	swing_point = point
 	movement_vector = (swing_point - global_transform.origin).normalized() * swing_speed
 	state = states.swinging
@@ -219,3 +239,23 @@ func _on_Player_swing_point_attached(point):
 	movement_speed = swing_speed
 	deceleration_weight = 0.05
 	acceleration = swing_acceleration
+
+func _on_Player_enemy_attached(point):
+	print("Attacking enemy anim here")
+	anim.play("jump_up")
+	character_sprite.texture = jump_texture
+	character_sprite.vframes = 3
+	character_sprite.hframes = 4
+	character_sprite.position.y = 0
+	falling_anim_played = false
+	swing_point = point
+	movement_vector = (swing_point - global_transform.origin).normalized() * swing_speed
+	state = states.swinging
+	swinging = true
+	movement_speed = swing_speed
+	deceleration_weight = 0.05
+	acceleration = swing_acceleration
+
+func _on_Hitbox_area_entered(area):
+	if(area.get_parent().type == "Enemy" and swinging):
+		area.get_parent().emit_signal("kill")
