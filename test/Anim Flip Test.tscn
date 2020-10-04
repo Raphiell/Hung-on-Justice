@@ -1,0 +1,55 @@
+[gd_scene load_steps=5 format=2]
+
+[ext_resource path="res://Anim Flip Test.gd" type="Script" id=1]
+[ext_resource path="res://texture/anim_flip_test.png" type="Texture" id=2]
+[ext_resource path="res://texture/anim_flip_test2.png" type="Texture" id=3]
+
+[sub_resource type="Animation" id=1]
+resource_name = "idle"
+loop = true
+step = 0.5
+tracks/0/type = "value"
+tracks/0/path = NodePath("Sprite:frame")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/keys = {
+"times": PoolRealArray( 0, 0.5 ),
+"transitions": PoolRealArray( 1, 1 ),
+"update": 1,
+"values": [ 0, 1 ]
+}
+tracks/1/type = "value"
+tracks/1/path = NodePath(".:dummy")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/keys = {
+"times": PoolRealArray( 0, 0.5 ),
+"transitions": PoolRealArray( 1, 1 ),
+"update": 1,
+"values": [ Vector2( 22.1078, 3.21959 ), Vector2( 21.8932, -41.8547 ) ]
+}
+
+[node name="Anim Flip Test" type="Node2D"]
+script = ExtResource( 1 )
+dummy = Vector2( 21.8932, -41.8547 )
+
+[node name="Sprite" type="Sprite" parent="."]
+texture = ExtResource( 2 )
+hframes = 2
+frame = 1
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="."]
+anims/idle = SubResource( 1 )
+
+[node name="Sprite2" type="Sprite" parent="."]
+position = Vector2( 21.8932, -41.8547 )
+texture = ExtResource( 3 )
+hframes = 2
+
+[node name="Camera2D" type="Camera2D" parent="."]
+current = true
+zoom = Vector2( 0.2, 0.2 )

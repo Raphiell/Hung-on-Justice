@@ -1,9 +1,10 @@
-[gd_scene load_steps=8 format=2]
+[gd_scene load_steps=9 format=2]
 
 [ext_resource path="res://entity/Player.tscn" type="PackedScene" id=1]
 [ext_resource path="res://texture/background.png" type="Texture" id=2]
 [ext_resource path="res://entity/Swing Point.tscn" type="PackedScene" id=3]
 [ext_resource path="res://entity/Shooter.tscn" type="PackedScene" id=4]
+[ext_resource path="res://entity/Bounce.tscn" type="PackedScene" id=5]
 
 [sub_resource type="RectangleShape2D" id=1]
 extents = Vector2( 95.0657, 5.22509 )
@@ -25,12 +26,14 @@ position = Vector2( -234.914, 14.7888 )
 
 [node name="StaticBody2D" type="StaticBody2D" parent="."]
 collision_layer = 33
+collision_mask = 0
 
 [node name="CollisionPolygon2D" type="CollisionPolygon2D" parent="StaticBody2D"]
 polygon = PoolVector2Array( -262.16, 50.8274, -189.669, 42.6823, -42.3522, 51.4364, -38.4887, 47.1436, 120.344, 48.8607, 124.637, 53.3682, 190.706, 63.8595, 308.809, 58.9724, 400.848, 47.5694, 767.376, 48.384, 767.376, 93.1818, -260.531, 94.8108 )
 
 [node name="StaticBody2D2" type="StaticBody2D" parent="."]
 collision_layer = 65
+collision_mask = 0
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="StaticBody2D2"]
 position = Vector2( 531.759, -26.6255 )
@@ -67,11 +70,24 @@ position = Vector2( 576.345, -163.369 )
 [node name="Swing Point5" parent="." instance=ExtResource( 3 )]
 position = Vector2( 474.324, -188.457 )
 
-[node name="Shooter" parent="." instance=ExtResource( 4 )]
-position = Vector2( 472.91, -142.595 )
-
 [node name="Shooter2" parent="." instance=ExtResource( 4 )]
-position = Vector2( 50.5401, -55.955 )
+position = Vector2( 51.2035, -61.2624 )
 
 [node name="Shooter3" parent="." instance=ExtResource( 4 )]
-position = Vector2( 277.97, 31.5875 )
+position = Vector2( 457.218, -60.5989 )
+
+[node name="Shooter4" parent="." instance=ExtResource( 4 )]
+position = Vector2( 481.092, -139.273 )
+moves = false
+
+[node name="Bounce" parent="." instance=ExtResource( 5 )]
+position = Vector2( 137.329, -21.8929 )
+
+[node name="Bounce3" parent="." instance=ExtResource( 5 )]
+position = Vector2( 421.273, -46.4395 )
+
+[node name="Bounce4" parent="." instance=ExtResource( 5 )]
+position = Vector2( 640.866, -47.103 )
+
+[node name="Bounce2" parent="." instance=ExtResource( 5 )]
+position = Vector2( -32.5077, -27.2003 )

@@ -93,6 +93,7 @@ exit={
 2d_physics/layer_5="Pickup"
 2d_physics/layer_6="Scenery For Player"
 2d_physics/layer_7="One Way Platform For Player"
+2d_physics/layer_8="Enemy Movement Bounce"
 
 [rendering]
 

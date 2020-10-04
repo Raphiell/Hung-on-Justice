@@ -1,8 +1,9 @@
-[gd_scene load_steps=10 format=2]
+[gd_scene load_steps=12 format=2]
 
-[ext_resource path="res://texture/player/hero_jump_noose.png" type="Texture" id=1]
+[ext_resource path="res://texture/player/hero_running.png" type="Texture" id=1]
 [ext_resource path="res://entity/Player.gd" type="Script" id=2]
 [ext_resource path="res://texture/cursor.png" type="Texture" id=3]
+[ext_resource path="res://texture/player/spin_normal.png" type="Texture" id=4]
 
 [sub_resource type="CapsuleShape2D" id=1]
 radius = 12.4881
@@ -10,19 +11,32 @@ height = 20.4404
 
 [sub_resource type="Animation" id=2]
 resource_name = "idle"
-length = 0.8
+length = 0.9
 loop = true
+step = 0.05
 tracks/0/type = "value"
-tracks/0/path = NodePath("Character:frame")
+tracks/0/path = NodePath("../Character:frame")
 tracks/0/interp = 1
 tracks/0/loop_wrap = true
 tracks/0/imported = false
 tracks/0/enabled = true
 tracks/0/keys = {
-"times": PoolRealArray( 0, 0.8 ),
-"transitions": PoolRealArray( 1, 1 ),
-"update": 0,
-"values": [ 0, 5 ]
+"times": PoolRealArray( 0, 0.15, 0.3, 0.45, 0.6, 0.75 ),
+"transitions": PoolRealArray( 1, 1, 1, 1, 1, 1 ),
+"update": 1,
+"values": [ 0, 1, 2, 3, 4, 5 ]
+}
+tracks/1/type = "value"
+tracks/1/path = NodePath("..:hand_location")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/keys = {
+"times": PoolRealArray( 0 ),
+"transitions": PoolRealArray( 1 ),
+"update": 1,
+"values": [ Vector2( -2.508, 5.282 ) ]
 }
 
 [sub_resource type="Animation" id=3]
@@ -30,7 +44,7 @@ resource_name = "jump_down"
 length = 0.2
 step = 0.05
 tracks/0/type = "value"
-tracks/0/path = NodePath("Character:frame")
+tracks/0/path = NodePath("../Character:frame")
 tracks/0/interp = 1
 tracks/0/loop_wrap = true
 tracks/0/imported = false
@@ -41,13 +55,25 @@ tracks/0/keys = {
 "update": 1,
 "values": [ 4, 5, 6 ]
 }
+tracks/1/type = "value"
+tracks/1/path = NodePath("..:hand_location")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/keys = {
+"times": PoolRealArray( 0, 0.1, 0.2 ),
+"transitions": PoolRealArray( 1, 1, 1 ),
+"update": 1,
+"values": [ Vector2( -0.214332, 5.72449 ), Vector2( -5.79495, 20.7492 ), Vector2( 2.57599, 25.9006 ) ]
+}
 
 [sub_resource type="Animation" id=4]
 resource_name = "jump_up"
 length = 0.2
 step = 0.05
 tracks/0/type = "value"
-tracks/0/path = NodePath("Character:frame")
+tracks/0/path = NodePath("../Character:frame")
 tracks/0/interp = 1
 tracks/0/loop_wrap = true
 tracks/0/imported = false
@@ -58,13 +84,25 @@ tracks/0/keys = {
 "update": 0,
 "values": [ 2, 3, 4 ]
 }
+tracks/1/type = "value"
+tracks/1/path = NodePath("..:hand_location")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/keys = {
+"times": PoolRealArray( 0, 0.1, 0.2 ),
+"transitions": PoolRealArray( 1, 1, 1 ),
+"update": 1,
+"values": [ Vector2( -10.7317, -16.8127 ), Vector2( 1.71742, -0.714695 ), Vector2( -1.28753, 6.79768 ) ]
+}
 
 [sub_resource type="Animation" id=5]
 length = 0.8
 loop = true
 step = 0.08
 tracks/0/type = "value"
-tracks/0/path = NodePath("Character:frame")
+tracks/0/path = NodePath("../Character:frame")
 tracks/0/interp = 1
 tracks/0/loop_wrap = true
 tracks/0/imported = false
@@ -75,14 +113,45 @@ tracks/0/keys = {
 "update": 1,
 "values": [ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 ]
 }
+tracks/1/type = "value"
+tracks/1/path = NodePath("..:hand_location")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/keys = {
+"times": PoolRealArray( 0, 0.08, 0.16, 0.24, 0.32, 0.4, 0.48, 0.56, 0.64, 0.72 ),
+"transitions": PoolRealArray( 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 ),
+"update": 1,
+"values": [ Vector2( -4.72175, 1.4317 ), Vector2( -1.93144, -1.78789 ), Vector2( -2.45612, -1.43016 ), Vector2( -0.700238, -0.321189 ), Vector2( 8.16939, 8.72944 ), Vector2( 17.6114, 13.0938 ), Vector2( 22.8035, 9.68816 ), Vector2( 19.5711, 6.76548 ), Vector2( 9.971, 6.2754 ), Vector2( 7.77598, 8.57562 ) ]
+}
 
 [sub_resource type="CircleShape2D" id=6]
 radius = 11.4897
+
+[sub_resource type="Animation" id=7]
+resource_name = "Noose Charge"
+length = 0.4
+loop = true
+step = 0.025
+tracks/0/type = "value"
+tracks/0/path = NodePath(".:frame")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/keys = {
+"times": PoolRealArray( 0, 0.1, 0.2, 0.3 ),
+"transitions": PoolRealArray( 1, 1, 1, 1 ),
+"update": 1,
+"values": [ 0, 1, 2, 3 ]
+}
 
 [node name="Player" type="KinematicBody2D"]
 collision_layer = 4
 collision_mask = 96
 script = ExtResource( 2 )
+hand_location = Vector2( -2.45612, -1.43016 )
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 position = Vector2( -0.291992, 5.2558 )
@@ -95,14 +164,10 @@ zoom = Vector2( 0.5, 0.5 )
 smoothing_enabled = true
 smoothing_speed = 10.0
 
-[node name="Character" type="Sprite" parent="."]
-position = Vector2( 0, 7 )
-texture = ExtResource( 1 )
-vframes = 3
-hframes = 4
-frame = 4
+[node name="Anim Container" type="Node2D" parent="."]
+scale = Vector2( 3.179, 1 )
 
-[node name="AnimationPlayer" type="AnimationPlayer" parent="."]
+[node name="AnimationPlayer" type="AnimationPlayer" parent="Anim Container"]
 anims/idle = SubResource( 2 )
 anims/jump_down = SubResource( 3 )
 anims/jump_up = SubResource( 4 )
@@ -142,6 +207,23 @@ collision_mask = 18
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Hitbox"]
 position = Vector2( 0, 6.97364 )
 shape = SubResource( 6 )
+
+[node name="Character" type="Sprite" parent="."]
+position = Vector2( 0, 7 )
+texture = ExtResource( 1 )
+vframes = 4
+hframes = 3
+frame = 2
+
+[node name="Noose Charge Up" type="Sprite" parent="."]
+position = Vector2( -4.72175, 1.4317 )
+texture = ExtResource( 4 )
+vframes = 2
+hframes = 2
+frame = 3
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="Noose Charge Up"]
+"anims/Noose Charge" = SubResource( 7 )
 [connection signal="enemy_attached" from="." to="." method="_on_Player_enemy_attached"]
 [connection signal="hit" from="." to="." method="_on_Player_hit"]
 [connection signal="swing_point_attached" from="." to="." method="_on_Player_swing_point_attached"]

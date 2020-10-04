@@ -52,6 +52,7 @@ export(float) var falling_timer_max = 0.15 # How long you can fall before the fa
 var original_falling_timer_max = 0.15
 var quick_falling_timer_max = 0.09
 var falling_timer : float = 0
+export(Vector2) var hand_location = Vector2.ZERO
 
 # Noose
 onready var noose_scene = preload("res://entity/Noose.tscn")
@@ -78,9 +79,12 @@ onready var character_sprite = $Character
 onready var camera = $Camera2D
 onready var ui = $UI
 onready var cursor = $UI/Cursor
-onready var anim = $AnimationPlayer
+onready var anim_container = $"Anim Container"
+onready var anim = $"Anim Container/AnimationPlayer"
 onready var hitbox = $Hitbox
 onready var health_control = $"Health Container/Health"
+onready var noose_spin = $"Noose Charge Up"
+onready var noose_anim = $"Noose Charge Up/AnimationPlayer"
 
 # Signals
 signal swing_point_attached
@@ -88,8 +92,10 @@ signal enemy_attached
 signal hit
 
 func _ready():
+	randomize()
 	Input.set_mouse_mode(Input.MOUSE_MODE_HIDDEN)
 	anim.play("idle")
+	noose_anim.play("Noose Charge")
 	global.player = self
 	update_health(0)
 	original_collision_mask = collision_mask
@@ -102,7 +108,11 @@ func _physics_process(delta):
 	facing = sign(movement_vector.x)
 	if(facing != 0):
 		character_sprite.scale.x = facing
+		noose_spin.scale.x = facing
 	
+	# Put the Noose chargeup sprite in the right spot
+	noose_spin.position = Vector2(hand_location.x * facing, hand_location.y)
+		
 	# Falling
 	if(movement_vector.y > 0 and !falling and !is_on_floor()):
 		falling_timer -= delta
@@ -276,7 +286,7 @@ func check_for_things(able_to_kill : bool):
 	var overlapping_areas = hitbox.get_overlapping_areas()
 	for area in overlapping_areas:
 		if(area.get_parent().get("type") == "Enemy" and able_to_kill):
-			area.get_parent().emit_signal("kill")
+			area.get_parent().emit_signal("kill", movement_vector)
 		if(area.get_parent().get("type") == "Health Pickup" and area.get_parent().get("pickupable")):
 			area.get_parent().emit_signal("pickup")
 			update_health(2)
@@ -365,3 +375,11 @@ func _on_Player_enemy_attached(point):
 
 func _on_Player_hit():
 	update_health(-1)
+
+#func check_for_animation_flip():
+#	var current_track = 1
+#	var animation = anim.get_animation(anim.current_animation)
+#	for i in animation.track_get_key_count(current_track):
+#		var key = animation.track_get_key_value(current_track, i)
+#		var flipped_key = Vector2(key.x * facing, key.y)
+#		animation.track_set_key_value(current_track, i, flipped_key)

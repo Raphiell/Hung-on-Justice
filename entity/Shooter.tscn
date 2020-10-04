@@ -1,15 +1,48 @@
-[gd_scene load_steps=6 format=2]
+[gd_scene load_steps=8 format=2]
 
 [ext_resource path="res://entity/Shooter.gd" type="Script" id=1]
-[ext_resource path="res://texture/enemy/enemy_walk.png" type="Texture" id=2]
+[ext_resource path="res://texture/enemy/enemy_shoot.png" type="Texture" id=2]
 
 [sub_resource type="CapsuleShape2D" id=1]
 radius = 7.72423
-height = 30.3446
+height = 37.9828
 
 [sub_resource type="CapsuleShape2D" id=2]
 radius = 13.7293
-height = 31.217
+height = 51.2221
+
+[sub_resource type="Animation" id=5]
+resource_name = "aim"
+step = 0.05
+tracks/0/type = "value"
+tracks/0/path = NodePath("Sprite:frame")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/keys = {
+"times": PoolRealArray( 0 ),
+"transitions": PoolRealArray( 1 ),
+"update": 1,
+"values": [ 0 ]
+}
+
+[sub_resource type="Animation" id=4]
+resource_name = "shoot"
+length = 1.15
+step = 0.05
+tracks/0/type = "value"
+tracks/0/path = NodePath("Sprite:frame")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/keys = {
+"times": PoolRealArray( 0, 0.1, 0.2, 0.45, 0.5, 0.55, 0.65, 0.75, 0.8, 0.95, 1.05, 1.15 ),
+"transitions": PoolRealArray( 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 ),
+"update": 1,
+"values": [ 0, 2, 3, 4, 5, 6, 7, 4, 3, 2, 1, 0 ]
+}
 
 [sub_resource type="Animation" id=3]
 resource_name = "walk"
@@ -36,13 +69,14 @@ position = Vector2( 0.387421, -1.16227 )
 shape = SubResource( 1 )
 
 [node name="Sprite" type="Sprite" parent="."]
+position = Vector2( -0.451874, -5.64841 )
 texture = ExtResource( 2 )
 vframes = 3
-hframes = 4
-frame = 3
+hframes = 3
 
 [node name="Hitbox" type="Area2D" parent="."]
 collision_layer = 3
+collision_mask = 128
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Hitbox"]
 position = Vector2( 0.387421, -1.16227 )
@@ -56,5 +90,12 @@ cast_to = Vector2( 200, 0 )
 collision_mask = 36
 
 [node name="AnimationPlayer" type="AnimationPlayer" parent="."]
+anims/aim = SubResource( 5 )
+anims/shoot = SubResource( 4 )
 anims/walk = SubResource( 3 )
+
+[node name="Shoot Point" type="Node2D" parent="."]
+position = Vector2( 14.4599, -12.6524 )
 [connection signal="kill" from="." to="." method="_on_Shooter_kill"]
+[connection signal="area_entered" from="Hitbox" to="." method="_on_Hitbox_area_entered"]
+[connection signal="animation_finished" from="AnimationPlayer" to="." method="_on_AnimationPlayer_animation_finished"]

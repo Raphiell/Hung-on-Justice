@@ -17,7 +17,7 @@ var state = states.sending
 var grabbed_item = null
 
 # How long before noose can start hitting stuff
-var noose_disabled_timer = 0.05
+var noose_disabled_timer = 0.0125
 
 # Nodes
 onready var rope = $Rope
