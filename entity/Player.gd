@@ -221,7 +221,6 @@ func regular_state(delta):
 		character_sprite.hframes = 4
 		character_sprite.position.y = 0
 		if(!falling_anim_played):
-			print("FALL")
 			anim.play("jump_down")
 			falling_anim_played = true
 	elif((abs(movement_vector.x) > 50 or lateral_input != 0) and !jumping and !swinging):
