@@ -1,5 +1,7 @@
 extends KinematicBody2D
 
+var type = "Player"
+
 enum states {
 	regular,
 	swinging
@@ -49,6 +51,12 @@ var swing_speed = 600
 var swinging = false
 var swing_acceleration = 5
 var noose = null
+export(float) var attach_timer_max = 1
+var attach_timer = 0
+
+# Attacking
+export(float) var kill_buffer_max = 0.2 # Number of seconds you can still kill after hitting the ground
+var kill_buffer = 0
 
 # Nodes
 onready var character_sprite = $Character
@@ -56,6 +64,7 @@ onready var camera = $Camera2D
 onready var ui = $UI
 onready var cursor = $UI/Cursor
 onready var anim = $AnimationPlayer
+onready var hitbox = $Hitbox
 
 # Signals
 signal swing_point_attached
@@ -188,16 +197,33 @@ func regular_state(delta):
 		get_tree().root.add_child(noose)
 		noose.global_transform.origin = global_transform.origin
 		noose_available = false
+	
+	# Check for enemy kill if buffer is still up
+	if(kill_buffer > 0):
+		kill_buffer -= delta
+		check_for_enemy()
 
 func swing_state(delta):
+	if(attach_timer > 0):
+		attach_timer -= delta
 	move_and_slide(movement_vector, Vector2.UP)
 	
 	if(global_transform.origin.distance_to(swing_point) < 20 or
-	   movement_vector.normalized().dot(global_transform.origin.direction_to(swing_point)) < 0.98):
+	   movement_vector.normalized().dot(global_transform.origin.direction_to(swing_point)) < 0.98 or
+	   attach_timer <= 0):
 		state = states.regular
+		kill_buffer = kill_buffer_max
 		swing_point = null
-		if(is_instance_valid(noose)):
+		if(is_instance_valid(noose) and noose.get("type") == "Noose"):
 			noose.return_noose()
+	check_for_enemy()
+
+func check_for_enemy():
+	# Check for hitting enemies
+	var overlapping_areas = hitbox.get_overlapping_areas()
+	for area in overlapping_areas:
+		if(area.get_parent().get("type") == "Enemy"):
+			area.get_parent().emit_signal("kill")
 
 func jump():
 	# If you are on the floor
@@ -226,6 +252,7 @@ func dodge():
 		dodge_buffer = dodge_buffer_max
 
 func _on_Player_swing_point_attached(point):
+	attach_timer = attach_timer_max
 	anim.play("jump_up")
 	character_sprite.texture = jump_texture
 	character_sprite.vframes = 3
@@ -241,6 +268,7 @@ func _on_Player_swing_point_attached(point):
 	acceleration = swing_acceleration
 
 func _on_Player_enemy_attached(point):
+	attach_timer = attach_timer_max
 	print("Attacking enemy anim here")
 	anim.play("jump_up")
 	character_sprite.texture = jump_texture
@@ -255,7 +283,3 @@ func _on_Player_enemy_attached(point):
 	movement_speed = swing_speed
 	deceleration_weight = 0.05
 	acceleration = swing_acceleration
-
-func _on_Hitbox_area_entered(area):
-	if(area.get_parent().type == "Enemy" and swinging):
-		area.get_parent().emit_signal("kill")

@@ -78,6 +78,7 @@ tracks/0/keys = {
 radius = 11.4897
 
 [node name="Player" type="KinematicBody2D"]
+collision_layer = 4
 script = ExtResource( 2 )
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
@@ -116,7 +117,7 @@ position = Vector2( 65.0873, -40.6795 )
 texture = ExtResource( 3 )
 
 [node name="Hitbox" type="Area2D" parent="."]
-collision_layer = 2
+collision_layer = 4
 collision_mask = 2
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Hitbox"]
@@ -124,4 +125,3 @@ position = Vector2( 0, 6.97364 )
 shape = SubResource( 6 )
 [connection signal="enemy_attached" from="." to="." method="_on_Player_enemy_attached"]
 [connection signal="swing_point_attached" from="." to="." method="_on_Player_swing_point_attached"]
-[connection signal="area_entered" from="Hitbox" to="." method="_on_Hitbox_area_entered"]

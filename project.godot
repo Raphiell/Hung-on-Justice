@@ -86,8 +86,10 @@ exit={
 
 [layer_names]
 
-2d_physics/layer_1="Noose"
+2d_physics/layer_1="Scenery"
 2d_physics/layer_2="Attack"
+2d_physics/layer_3="Player"
+2d_physics/layer_4="Noose"
 
 [rendering]
 

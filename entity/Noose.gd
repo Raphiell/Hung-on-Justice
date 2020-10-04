@@ -1,5 +1,7 @@
 extends Node2D
 
+var type = "Noose"
+
 enum states {
 	sending,
 	returning,
@@ -16,7 +18,7 @@ var state = states.sending
 onready var rope = $Rope
 onready var rope_point = $"Rope Point"
 
-func _process(delta):
+func _physics_process(delta):
 	var noose_distance_from_player = global_transform.origin.distance_to(global.player.global_transform.origin)
 	if(state == states.returning):
 		movement_vector = (global.player.global_transform.origin - global_transform.origin).normalized()
