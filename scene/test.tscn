@@ -31,10 +31,12 @@ polygon = PoolVector2Array( -262.16, 50.8274, -189.669, 42.6823, -39.7996, 50.01
 [node name="CollisionShape2D" type="CollisionShape2D" parent="StaticBody2D"]
 position = Vector2( 531.759, -26.6255 )
 shape = SubResource( 1 )
+one_way_collision = true
 
 [node name="CollisionShape2D2" type="CollisionShape2D" parent="StaticBody2D"]
 position = Vector2( 536.778, -109.077 )
 shape = SubResource( 2 )
+one_way_collision = true
 
 [node name="CollisionShape2D3" type="CollisionShape2D" parent="StaticBody2D"]
 position = Vector2( 475.6, -188.74 )
@@ -42,6 +44,7 @@ shape = SubResource( 3 )
 
 [node name="CollisionPolygon2D2" type="CollisionPolygon2D" parent="StaticBody2D"]
 polygon = PoolVector2Array( -36.1693, -5.51229, 52.6287, -30.4672, 123.954, -5.32336, 120.176, -1.16676, 52.3707, -22.9123, -33.2408, -0.599941 )
+one_way_collision = true
 
 [node name="Swing Point" parent="." instance=ExtResource( 3 )]
 position = Vector2( 257.868, -60.1247 )

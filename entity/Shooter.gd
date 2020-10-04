@@ -17,6 +17,9 @@ var bullet_scene = preload("res://entity/Bullet.tscn")
 # Sprites
 var hit_texture = preload("res://texture/badguy_hit.png")
 
+# Death
+var health_pickup_scene = preload("res://entity/Health Pickup.tscn")
+
 # Nodes
 onready var sprite = $Sprite
 onready var rope_point = $"Rope Point"
@@ -58,4 +61,11 @@ func _on_Shooter_kill():
 	blood_particles.emitting = true
 	get_tree().root.add_child(blood_particles)
 	blood_particles.global_transform.origin = rope_point.global_transform.origin
+	
+	# 1 in 3 chance
+	if(1 == 1):#randi() % 2 == 0):
+		var health_pickup = health_pickup_scene.instance()
+		get_tree().root.add_child(health_pickup)
+		health_pickup.global_transform.origin = global_transform.origin
+	
 	queue_free()

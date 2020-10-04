@@ -58,6 +58,11 @@ var attach_timer = 0
 export(float) var kill_buffer_max = 0.2 # Number of seconds you can still kill after hitting the ground
 var kill_buffer = 0
 
+# Health
+export(int) var max_health = 6
+var health = max_health
+var heart_indicator_scene = preload("res://entity/Heart Indicator.tscn")
+
 # Nodes
 onready var character_sprite = $Character
 onready var camera = $Camera2D
@@ -65,15 +70,18 @@ onready var ui = $UI
 onready var cursor = $UI/Cursor
 onready var anim = $AnimationPlayer
 onready var hitbox = $Hitbox
+onready var health_control = $"Health Container/Health"
 
 # Signals
 signal swing_point_attached
 signal enemy_attached
+signal hit
 
 func _ready():
 	Input.set_mouse_mode(Input.MOUSE_MODE_HIDDEN)
 	anim.play("idle")
 	global.player = self
+	update_health(0)
 
 func _physics_process(delta):
 	# Mouse
@@ -201,7 +209,9 @@ func regular_state(delta):
 	# Check for enemy kill if buffer is still up
 	if(kill_buffer > 0):
 		kill_buffer -= delta
-		check_for_enemy()
+		check_for_things(true)
+	else:
+		check_for_things(false)
 
 func swing_state(delta):
 	if(attach_timer > 0):
@@ -216,14 +226,17 @@ func swing_state(delta):
 		swing_point = null
 		if(is_instance_valid(noose) and noose.get("type") == "Noose"):
 			noose.return_noose()
-	check_for_enemy()
+	check_for_things(true)
 
-func check_for_enemy():
+func check_for_things(able_to_kill : bool):
 	# Check for hitting enemies
 	var overlapping_areas = hitbox.get_overlapping_areas()
 	for area in overlapping_areas:
-		if(area.get_parent().get("type") == "Enemy"):
+		if(area.get_parent().get("type") == "Enemy" and able_to_kill):
 			area.get_parent().emit_signal("kill")
+		if(area.get_parent().get("type") == "Health Pickup" and area.get_parent().get("pickupable")):
+			area.get_parent().emit_signal("pickup")
+			update_health(2)
 
 func jump():
 	# If you are on the floor
@@ -250,6 +263,26 @@ func dodge():
 		dodge_roll_cooldown = dodge_roll_cooldown_max
 	else:
 		dodge_buffer = dodge_buffer_max
+
+func update_health(amount : int):
+	health = clamp(health + amount, 0, max_health)
+	if(health <= 0):
+		get_tree().change_scene_to(load("res://scene/Death Screen.tscn"))
+	for node in health_control.get_children():
+		node.queue_free()
+	
+	var health_temp = health
+	for i in range(3):
+		var heart_indicator = heart_indicator_scene.instance()
+		health_control.add_child(heart_indicator)
+		heart_indicator.transform.origin.x = 32 * i
+		if(health_temp >= 2):
+			heart_indicator.frame = 0
+		elif(health_temp == 1):
+			heart_indicator.frame = 1
+		else:
+			heart_indicator.frame = 2
+		health_temp -= 2
 
 func _on_Player_swing_point_attached(point):
 	attach_timer = attach_timer_max
@@ -283,3 +316,6 @@ func _on_Player_enemy_attached(point):
 	movement_speed = swing_speed
 	deceleration_weight = 0.05
 	acceleration = swing_acceleration
+
+func _on_Player_hit():
+	update_health(-1)

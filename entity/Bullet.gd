@@ -18,11 +18,13 @@ func _physics_process(delta):
 	
 	global_transform.origin += movement_vector * movement_speed
 	
-	var overlapping_areas = hitbox.get_overlapping_areas()
-	for area in overlapping_areas:
-		if area.get("type") == "Player":
-			print("Player Hit")
-			queue_free()
+#	var overlapping_areas = hitbox.get_overlapping_areas()
+#	for area in overlapping_areas:
+#		if area.get_parent().get("type") == "Player":
+#			print("Player Hit")
+#			queue_free()
 
 func _on_Hitbox_body_entered(body):
+	if(body.get("type") == "Player"):
+		body.emit_signal("hit")
 	queue_free()
