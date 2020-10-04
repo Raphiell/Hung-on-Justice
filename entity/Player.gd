@@ -18,6 +18,7 @@ var deceleration_weight : float = regular_decel_weight
 export(float) var regular_acceleration = 20
 var acceleration = regular_acceleration
 var lateral_input : int = 0
+var original_collision_mask = 0
 
 # Jumping
 export(float) var jump_strength = 450
@@ -36,12 +37,21 @@ export(float) var dodge_roll_timer_max = 0.2
 var dodge_roll_cooldown : float = 0
 export(float) var dodge_roll_cooldown_max = 0.5 # Seconds before you can dodge roll again
 
+# Dropping through platforms
+var drop_through_timer_max = 0.2
+var drop_through_timer = 0
+
 # Animation
 var facing : int = 1
 onready var idle_texture = preload("res://texture/player/hero_standing.png")
 onready var run_texture = preload("res://texture/player/hero_running.png")
 onready var jump_texture = preload("res://texture/player/hero_jump_noose.png")
 var falling_anim_played = false
+var falling = false
+export(float) var falling_timer_max = 0.15 # How long you can fall before the falling animation starts
+var original_falling_timer_max = 0.15
+var quick_falling_timer_max = 0.09
+var falling_timer : float = 0
 
 # Noose
 onready var noose_scene = preload("res://entity/Noose.tscn")
@@ -82,6 +92,7 @@ func _ready():
 	anim.play("idle")
 	global.player = self
 	update_health(0)
+	original_collision_mask = collision_mask
 
 func _physics_process(delta):
 	# Mouse
@@ -91,6 +102,20 @@ func _physics_process(delta):
 	facing = sign(movement_vector.x)
 	if(facing != 0):
 		character_sprite.scale.x = facing
+	
+	# Falling
+	if(movement_vector.y > 0 and !falling and !is_on_floor()):
+		falling_timer -= delta
+		if(falling_timer <= 0):
+			falling = true
+			falling_anim_played = false
+	elif(movement_vector.y <= 0):
+		falling = false
+		falling_timer = falling_timer_max
+	elif(is_on_floor()):
+		falling = false
+		falling_timer_max = original_falling_timer_max
+		falling_timer = falling_timer_max
 	
 	if(state == states.regular):
 		regular_state(delta)
@@ -128,33 +153,47 @@ func regular_state(delta):
 		if(is_on_floor()):
 			jump()
 	
-	# Dodge Rolling
-	if(Input.is_action_just_pressed("ui_down")):
-		if(is_on_floor()):
-			dodge()
-		else:
-			# Buffer
-			dodge_buffer = dodge_buffer_max
+#	# Dodge Rolling
+#	if(Input.is_action_just_pressed("ui_down")):
+#		if(is_on_floor()):
+#			#dodge()
+#		else:
+#			pass
+#			# Buffer
+#			#dodge_buffer = dodge_buffer_max
+#
+#	# If you buffered a dodge
+#	if(dodge_buffer > 0):
+#		dodge_buffer -= delta
+#		# If you hit the floor and your cooldown is over at any point during the buffer, dodge
+#		if(is_on_floor() and dodge_roll_cooldown <= 0):
+#			dodge()
 	
-	# If you buffered a dodge
-	if(dodge_buffer > 0):
-		dodge_buffer -= delta
-		# If you hit the floor and your cooldown is over at any point during the buffer, dodge
-		if(is_on_floor() and dodge_roll_cooldown <= 0):
-			dodge()
+	# Dropping through platforms
+	if(Input.is_action_pressed("ui_down")):
+		collision_mask = original_collision_mask - 64
+		drop_through_timer = drop_through_timer_max
+		falling_timer_max = quick_falling_timer_max
+		
 	
-	# Dodge stopping
-	if(dodge_roll_timer > 0):
-		dodge_roll_timer -= delta
-		if(dodge_roll_timer <= 0 and !jumping):
-			movement_speed = max_movement_speed
+	# Timer for how long to disable one way platforms for player
+	if(drop_through_timer > 0):
+		drop_through_timer -= delta
+		if(drop_through_timer <= 0):
+			collision_mask = original_collision_mask
 	
-	# Dodge Cooldown
-	if(dodge_roll_cooldown >= 0):
-		dodge_roll_cooldown -= delta
+#	# Dodge stopping
+#	if(dodge_roll_timer > 0):
+#		dodge_roll_timer -= delta
+#		if(dodge_roll_timer <= 0 and !jumping):
+#			movement_speed = max_movement_speed
+#
+#	# Dodge Cooldown
+#	if(dodge_roll_cooldown >= 0):
+#		dodge_roll_cooldown -= delta
 	
 	# Horizontal motion
-	if(lateral_input != 0 or dodge_roll_timer > 0):
+	if(lateral_input != 0): #or dodge_roll_timer > 0):
 		movement_vector.x = clamp(movement_vector.x + lateral_input, -movement_speed, movement_speed)
 	else:
 		movement_vector.x = lerp(movement_vector.x, 0, deceleration_weight)
@@ -176,7 +215,16 @@ func regular_state(delta):
 		movement_vector.x = 0
 	
 	# Animation
-	if((abs(movement_vector.x) > 50 or lateral_input != 0) and !jumping and !swinging):
+	if(falling):
+		character_sprite.texture = jump_texture
+		character_sprite.vframes = 3
+		character_sprite.hframes = 4
+		character_sprite.position.y = 0
+		if(!falling_anim_played):
+			print("FALL")
+			anim.play("jump_down")
+			falling_anim_played = true
+	elif((abs(movement_vector.x) > 50 or lateral_input != 0) and !jumping and !swinging):
 		character_sprite.texture = run_texture
 		character_sprite.vframes = 4
 		character_sprite.hframes = 3
@@ -189,10 +237,6 @@ func regular_state(delta):
 		character_sprite.position.y = 0
 		anim.play("idle")
 	elif(jumping or swinging):
-		# Falling
-		if(movement_vector.y > 0 and !falling_anim_played):
-			anim.play("jump_down")
-			falling_anim_played = true
 		character_sprite.texture = jump_texture
 		character_sprite.vframes = 3
 		character_sprite.hframes = 4
@@ -245,24 +289,25 @@ func jump():
 		jumping = true
 		deceleration_weight = 0.05
 		anim.play("jump_up")
-		falling_anim_played = false
+		falling_timer_max = quick_falling_timer_max
+		#falling_anim_played = false
 	else:
 		# Start the buffer
 		jump_buffer = jump_buffer_max
 
-func dodge():
-	if(dodge_roll_cooldown <= 0):
-		if(Input.is_action_pressed("ui_left")):
-			movement_vector.x = -dodge_speed
-		else:
-			movement_vector.x = dodge_speed
-		movement_speed = dodge_speed
-		dodge_roll_timer = dodge_roll_timer_max
-		if(!jumping):
-			character_sprite.frame = 1
-		dodge_roll_cooldown = dodge_roll_cooldown_max
-	else:
-		dodge_buffer = dodge_buffer_max
+#func dodge():
+#	if(dodge_roll_cooldown <= 0):
+#		if(Input.is_action_pressed("ui_left")):
+#			movement_vector.x = -dodge_speed
+#		else:
+#			movement_vector.x = dodge_speed
+#		movement_speed = dodge_speed
+#		dodge_roll_timer = dodge_roll_timer_max
+#		if(!jumping):
+#			character_sprite.frame = 1
+#		dodge_roll_cooldown = dodge_roll_cooldown_max
+#	else:
+#		dodge_buffer = dodge_buffer_max
 
 func update_health(amount : int):
 	health = clamp(health + amount, 0, max_health)
@@ -291,7 +336,8 @@ func _on_Player_swing_point_attached(point):
 	character_sprite.vframes = 3
 	character_sprite.hframes = 4
 	character_sprite.position.y = 0
-	falling_anim_played = false
+	#falling_anim_played = false
+	falling_timer_max = quick_falling_timer_max
 	swing_point = point
 	movement_vector = (swing_point - global_transform.origin).normalized() * swing_speed
 	state = states.swinging
@@ -308,13 +354,14 @@ func _on_Player_enemy_attached(point):
 	character_sprite.vframes = 3
 	character_sprite.hframes = 4
 	character_sprite.position.y = 0
-	falling_anim_played = false
+	falling_timer = 0.05
+	#falling_anim_played = false
 	swing_point = point
 	movement_vector = (swing_point - global_transform.origin).normalized() * swing_speed
 	state = states.swinging
 	swinging = true
 	movement_speed = swing_speed
-	deceleration_weight = 0.05
+	deceleration_weight = quick_falling_timer_max
 	acceleration = swing_acceleration
 
 func _on_Player_hit():

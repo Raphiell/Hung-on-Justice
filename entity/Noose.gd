@@ -34,14 +34,17 @@ func _physics_process(delta):
 	elif(state == states.attached):
 		pass
 	elif(state == states.return_with_item):
-		grabbed_item.global_transform.origin = global_transform.origin
-		grabbed_item.collision_mask = 0
-		movement_vector = (global.player.global_transform.origin - global_transform.origin).normalized()
-		global_transform.origin += movement_vector * return_speed
-		# Remove noose once it's close enough back to you
-		if(noose_distance_from_player <= 10):
-			global.player.noose_available = true
-			queue_free()
+		if(is_instance_valid(grabbed_item) and grabbed_item.get("type") == "Health Pickup"):
+			grabbed_item.global_transform.origin = global_transform.origin
+			grabbed_item.collision_mask = 0
+			movement_vector = (global.player.global_transform.origin - global_transform.origin).normalized()
+			global_transform.origin += movement_vector * return_speed
+			# Remove noose once it's close enough back to you
+			if(noose_distance_from_player <= 10):
+				global.player.noose_available = true
+				queue_free()
+		else:
+			state = states.returning
 	
 	# If noose is too far away, return it to player
 	if(noose_distance_from_player > noose_max_range and state != states.return_with_item):
@@ -66,5 +69,4 @@ func _on_Hitbox_area_entered(area):
 	if(area.get_parent().get("type") == "Health Pickup" and area.get_parent().get("pickupable")):
 		state = states.return_with_item
 		grabbed_item = area.get_parent()
-		print("Yea i see it")
 		

@@ -91,6 +91,8 @@ exit={
 2d_physics/layer_3="Player"
 2d_physics/layer_4="Noose"
 2d_physics/layer_5="Pickup"
+2d_physics/layer_6="Scenery For Player"
+2d_physics/layer_7="One Way Platform For Player"
 
 [rendering]
 
