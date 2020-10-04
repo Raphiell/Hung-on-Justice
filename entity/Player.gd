@@ -44,8 +44,11 @@ var drop_through_timer = 0
 # Animation
 var facing : int = 1
 onready var idle_texture = preload("res://texture/player/hero_standing.png")
+onready var charging_idle_texture = preload("res://texture/player/hero_standing_charge.png")
 onready var run_texture = preload("res://texture/player/hero_running.png")
+#onready var charging_run_texture = preload("res://texture/player/hero_running_charge.png")
 onready var jump_texture = preload("res://texture/player/hero_jump_noose.png")
+onready var charging_jump_texture = preload("res://texture/player/hero_jump_normal.png")
 var falling_anim_played = false
 var falling = false
 export(float) var falling_timer_max = 0.15 # How long you can fall before the falling animation starts
@@ -58,16 +61,32 @@ export(Vector2) var hand_location = Vector2.ZERO
 onready var noose_scene = preload("res://entity/Noose.tscn")
 var noose_available = true
 var swing_point = null
-var swing_speed = 600
+var slow_swing_speed = 400
+var medium_swing_speed = 500
+var fast_swing_speed = 600
+var low_noose_distance = 100
+var medium_noose_distance = 150
+var max_noose_distance = 200
+var low_noose_speed = 7
+var medium_noose_speed = 10
+var max_noose_speed = 15
+var swing_speed = slow_swing_speed
 var swinging = false
 var swing_acceleration = 5
 var noose = null
 export(float) var attach_timer_max = 1
 var attach_timer = 0
+var noose_texture = preload("res://texture/player/spin_normal.png")
+var mega_noose_texture = preload("res://texture/player/spin_power.png")
 
 # Attacking
 export(float) var kill_buffer_max = 0.2 # Number of seconds you can still kill after hitting the ground
 var kill_buffer = 0
+export(float) var low_charge_time = 0.3
+export(float) var medium_charge_time = 0.7
+export(float) var max_charge_time = 1.5
+var charged_time : float = 0
+var charging : bool = false
 
 # Health
 export(int) var max_health = 6
@@ -226,7 +245,11 @@ func regular_state(delta):
 	
 	# Animation
 	if(falling):
-		character_sprite.texture = jump_texture
+		anim.playback_speed = 1
+		if(charging):
+			character_sprite.texture = charging_jump_texture
+		else:
+			character_sprite.texture = jump_texture
 		character_sprite.vframes = 3
 		character_sprite.hframes = 4
 		character_sprite.position.y = 0
@@ -234,30 +257,96 @@ func regular_state(delta):
 			anim.play("jump_down")
 			falling_anim_played = true
 	elif((abs(movement_vector.x) > 50 or lateral_input != 0) and !jumping and !swinging):
+		anim.playback_speed = 1
 		character_sprite.texture = run_texture
 		character_sprite.vframes = 4
 		character_sprite.hframes = 3
 		character_sprite.position.y = 7
 		anim.play("run")
 	elif((abs(movement_vector.x) < 50 or lateral_input == 0) and !jumping and !swinging):
-		character_sprite.texture = idle_texture
-		character_sprite.vframes = 2
-		character_sprite.hframes = 4
-		character_sprite.position.y = 0
-		anim.play("idle")
+		if(charging):
+			character_sprite.texture = charging_idle_texture
+			character_sprite.vframes = 3
+			character_sprite.hframes = 3
+			character_sprite.position.y = 0
+			anim.play("idle_charging")
+			if(charged_time < low_charge_time):
+				anim.playback_speed = 0.7
+			elif(charged_time < medium_charge_time):
+				anim.playback_speed = 1.1
+			elif(charged_time < max_charge_time):
+				anim.playback_speed = 1.7
+			elif(charged_time >= max_charge_time):
+				anim.playback_speed = 2.2
+		else:
+			anim.playback_speed = 1
+			character_sprite.texture = idle_texture
+			character_sprite.vframes = 2
+			character_sprite.hframes = 4
+			character_sprite.position.y = 0
+			anim.play("idle")
 	elif(jumping or swinging):
-		character_sprite.texture = jump_texture
+		anim.playback_speed = 1
+		if(charging):
+			character_sprite.texture = charging_jump_texture
+		else:
+			character_sprite.texture = jump_texture
 		character_sprite.vframes = 3
 		character_sprite.hframes = 4
 		character_sprite.position.y = 0
 		
 	# Noose
 	if(Input.is_action_just_pressed("left_click") and noose_available):
-		noose = noose_scene.instance()
-		noose.movement_vector = (get_global_mouse_position() - global_transform.origin).normalized()
-		get_tree().root.add_child(noose)
-		noose.global_transform.origin = global_transform.origin
-		noose_available = false
+		charging = true
+		charged_time = 0
+	
+	if(Input.is_action_just_released("left_click")):
+		charging = false
+		if(charged_time < low_charge_time):
+			# Don't throw anything
+			pass
+		else:
+			noose = noose_scene.instance()
+			noose.movement_vector = (get_global_mouse_position() - global_transform.origin).normalized()
+			get_tree().root.add_child(noose)
+			noose.global_transform.origin = global_transform.origin
+			noose_available = false
+			if(charged_time < medium_charge_time):
+				noose.noose_max_range = low_noose_distance
+				noose.movement_speed = low_noose_speed
+				swing_speed = slow_swing_speed
+			elif(charged_time < max_charge_time):
+				noose.noose_max_range = medium_noose_distance
+				noose.movement_speed = medium_noose_speed
+				swing_speed = medium_swing_speed
+			elif(charged_time >= max_charge_time):
+				noose.noose_max_range = max_noose_distance
+				noose.movement_speed = max_noose_speed
+				swing_speed = fast_swing_speed
+		charged_time = 0
+		noose_spin.texture = noose_texture
+
+	
+	if(charging):
+		charged_time += delta
+		
+	# Noose Animations
+	if(charged_time == 0):
+		noose_spin.visible = false
+		noose_anim.play("Noose Charge")
+	else:
+		noose_spin.visible = true
+	
+	if(charged_time > 0 and charged_time < low_charge_time):
+		noose_anim.playback_speed = 0.7
+	elif(charged_time < medium_charge_time):
+		noose_anim.playback_speed = 1.1
+	elif(charged_time < max_charge_time):
+		noose_anim.playback_speed = 1.7
+	elif(charged_time >= max_charge_time):
+		noose_anim.playback_speed = 2.2
+		noose_spin.texture = mega_noose_texture
+	
 	
 	# Check for enemy kill if buffer is still up
 	if(kill_buffer > 0):
