@@ -390,9 +390,14 @@ func check_for_things(able_to_kill : bool):
 	for area in overlapping_areas:
 		if(area.get_parent().get("type") == "Enemy" and able_to_kill):
 			area.get_parent().emit_signal("kill", movement_vector)
-		if(area.get_parent().get("type") == "Health Pickup" and area.get_parent().get("pickupable")):
+		elif(area.get_parent().get("type") == "Health Pickup" and area.get_parent().get("pickupable")):
 			area.get_parent().emit_signal("pickup")
 			update_health(2)
+		elif(area.get_parent().get("type") == "Kill Zone"):
+			print("Kill me plz")
+			for respawn_point in get_tree().get_nodes_in_group(global.respawn_group):
+				if(respawn_point.get("respawn_id") == area.get_parent().get("respawn_id")):
+					global_transform.origin = respawn_point.global_transform.origin
 
 func jump():
 	# If you are on the floor

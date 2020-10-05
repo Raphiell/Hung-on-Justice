@@ -37,6 +37,7 @@ export(bool) var moves = true
 var health_pickup_scene = preload("res://entity/Health Pickup.tscn")
 var death_launch_speed : float = 50
 var shooter_corpse_scene = preload("res://entity/Shooter Corpse.tscn")
+export(bool) var always_drop_health = false
 
 # Nodes
 onready var sprite = $Sprite
@@ -127,7 +128,7 @@ func _on_Shooter_kill(launch_vector : Vector2):
 	blood_particles.global_transform.origin = rope_point.global_transform.origin
 	
 	# 1 in 3 chance
-	if(randi() % 2 == 0):
+	if(randi() % 2 == 0 or always_drop_health):
 		var health_pickup = health_pickup_scene.instance()
 		get_tree().root.add_child(health_pickup)
 		health_pickup.global_transform.origin = global_transform.origin

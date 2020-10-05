@@ -3,6 +3,9 @@ extends Node
 const GRAVITY = 20
 const TERMINAL_VELOCITY = 400
 
+# Groups
+const respawn_group = "Respawn"
+
 var player
 
 # Particles

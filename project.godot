@@ -16,7 +16,7 @@ _global_script_class_icons={
 [application]
 
 config/name="Hung on Justice"
-run/main_scene="res://scene/test.tscn"
+run/main_scene="res://scene/Main.tscn"
 config/icon="res://icon.png"
 
 [autoload]
@@ -94,6 +94,7 @@ exit={
 2d_physics/layer_6="Scenery For Player"
 2d_physics/layer_7="One Way Platform For Player"
 2d_physics/layer_8="Enemy Movement Bounce"
+2d_physics/layer_9="Kill Zone"
 
 [rendering]
 
