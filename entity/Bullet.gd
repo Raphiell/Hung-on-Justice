@@ -11,6 +11,9 @@ var lifetime_timer : float = 2
 # Nodes
 onready var hitbox = $Hitbox
 
+func _ready():
+	$AnimationPlayer.play("basic")
+
 func _physics_process(delta):
 	lifetime_timer -= delta
 	if(lifetime_timer <= 0):

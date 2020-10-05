@@ -8,6 +8,8 @@ var bleed_timer_max = 3 # How long the shooter will bleed after stopping
 var bleed_timer = 0
 var original_blood_velocity : float
 var blood_slowdown_started : bool = false
+var original_particle_position : Vector2 = Vector2.ZERO
+var bounce_sound = preload("res://sound/player_footstep.wav")
 
 # Nodes
 onready var sprite = $Sprite
@@ -15,11 +17,12 @@ onready var particles = $CPUParticles2D
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
-	particles.position.x *= -1
+	original_particle_position = particles.position
 	original_blood_velocity = particles.initial_velocity
 
 func _physics_process(delta):
 	sprite.scale.x = facing if facing != 0 else 1
+	particles.position.x = original_particle_position.x * (facing if facing != 0 else 1)
 	if(launch_vector.y < 0):
 		sprite.frame = 0
 	elif(launch_vector.y > 0 and launch_vector.y < 50):
@@ -36,6 +39,7 @@ func _physics_process(delta):
 			bounces += 1
 			launch_vector.y *= -0.5
 			launch_vector.x *= 0.7
+			global.play_sound(bounce_sound, -20)
 		else:
 			launch_vector = Vector2.ZERO
 			if(!blood_slowdown_started):

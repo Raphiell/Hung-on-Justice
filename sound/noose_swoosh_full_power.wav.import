@@ -1,0 +1,21 @@
+[remap]
+
+importer="wav"
+type="AudioStreamSample"
+path="res://.import/noose_swoosh_full_power.wav-b3e66aafa8b1b5c22164c0dccd7cc665.sample"
+
+[deps]
+
+source_file="res://sound/noose_swoosh_full_power.wav"
+dest_files=[ "res://.import/noose_swoosh_full_power.wav-b3e66aafa8b1b5c22164c0dccd7cc665.sample" ]
+
+[params]
+
+force/8_bit=false
+force/mono=false
+force/max_rate=false
+force/max_rate_hz=44100
+edit/trim=false
+edit/normalize=false
+edit/loop=false
+compress/mode=0

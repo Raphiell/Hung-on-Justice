@@ -19,6 +19,9 @@ export(float) var regular_acceleration = 20
 var acceleration = regular_acceleration
 var lateral_input : int = 0
 var original_collision_mask = 0
+export(float) var footstep_timer_max = 0.35 # Time between footsteps
+var footstep_timer : float = 0.1
+var footstep_sound = preload("res://sound/player_footstep.wav")
 
 # Jumping
 export(float) var jump_strength = 450
@@ -45,6 +48,7 @@ var drop_through_timer = 0
 var facing : int = 1
 onready var idle_texture = preload("res://texture/player/hero_standing.png")
 onready var charging_idle_texture = preload("res://texture/player/hero_standing_charge.png")
+onready var idle_texture_no_noose = preload("res://texture/player/hero_standing_nonoose.png")
 onready var run_texture = preload("res://texture/player/hero_running.png")
 onready var charging_run_texture = preload("res://texture/player/hero_running_charge.png")
 onready var jump_texture = preload("res://texture/player/hero_jump_noose.png")
@@ -67,9 +71,9 @@ var fast_swing_speed = 600
 var low_noose_distance = 100
 var medium_noose_distance = 150
 var max_noose_distance = 200
-var low_noose_speed = 7
-var medium_noose_speed = 10
-var max_noose_speed = 15
+var low_noose_speed = 10
+var medium_noose_speed = 12
+var max_noose_speed = 20
 var swing_speed = slow_swing_speed
 var swinging = false
 var swing_acceleration = 5
@@ -79,6 +83,11 @@ var attach_timer = 0
 var weak_noose_texture = preload("res://texture/player/spin_weak.png")
 var noose_texture = preload("res://texture/player/spin_normal.png")
 var mega_noose_texture = preload("res://texture/player/spin_power.png")
+var regular_noose_swoosh = preload("res://sound/noose_swoosh.wav")
+var max_noose_swoosh = preload("res://sound/noose_swoosh_full_power.wav")
+var noose_swoosh = regular_noose_swoosh
+var noose_swoosh_timer = 0
+var noose_swoosh_timer_max = 0.4
 
 # Attacking
 export(float) var kill_buffer_max = 0.2 # Number of seconds you can still kill after hitting the ground
@@ -93,6 +102,7 @@ var charging : bool = false
 export(int) var max_health = 6
 var health = max_health
 var heart_indicator_scene = preload("res://entity/Heart Indicator.tscn")
+var hit_sound = preload("res://sound/player_hit.wav")
 
 # Nodes
 onready var character_sprite = $Character
@@ -107,6 +117,7 @@ onready var noose_spin = $"Noose Charge Up"
 onready var noose_anim = $"Noose Charge Up/AnimationPlayer"
 onready var dust = $Dust
 onready var dust_anim = $Dust/AnimationPlayer
+onready var gang_member_count = $"Health Container/Number"
 
 # Signals
 signal swing_point_attached
@@ -124,11 +135,17 @@ func _ready():
 	original_collision_mask = collision_mask
 
 func _physics_process(delta):
+	# Gang member count
+	gang_member_count.text = str(global.gang_members_remaining)
+	if(global.gang_members_remaining == 0):
+		get_tree().change_scene_to(load("res://scene/End Screen.tscn"))
+	
 	# Mouse
 	cursor.transform.origin = get_local_mouse_position()
 	
-	# Facing
 	facing = sign(movement_vector.x)
+	if(lateral_input == 0):
+		facing = sign(get_global_mouse_position().x - global_transform.origin.x)
 	if(facing != 0):
 		character_sprite.scale.x = facing
 		noose_spin.scale.x = facing
@@ -270,6 +287,11 @@ func regular_state(delta):
 		character_sprite.hframes = 3
 		character_sprite.position.y = 7
 		anim.play("run")
+		if(footstep_timer >= 0):
+			footstep_timer -= delta
+			if(footstep_timer <= 0):
+				footstep_timer = footstep_timer_max
+				global.play_sound(footstep_sound, -30, 0.1)
 	elif((abs(movement_vector.x) < 50 or lateral_input == 0) and !jumping and !swinging):
 		if(charging):
 			character_sprite.texture = charging_idle_texture
@@ -285,6 +307,13 @@ func regular_state(delta):
 				anim.playback_speed = 1.7
 			elif(charged_time >= max_charge_time):
 				anim.playback_speed = 2.2
+		elif(swinging or !noose_available):
+			anim.playback_speed = 1
+			character_sprite.texture = idle_texture_no_noose
+			character_sprite.vframes = 2
+			character_sprite.hframes = 4
+			character_sprite.position.y = 0
+			anim.play("idle")
 		else:
 			anim.playback_speed = 1
 			character_sprite.texture = idle_texture
@@ -308,6 +337,21 @@ func regular_state(delta):
 		charged_time = 0
 	else:
 		pass
+	
+	if(charging):
+		noose_swoosh = regular_noose_swoosh
+		if(charged_time < low_charge_time):
+			noose_swoosh_timer -= delta
+		elif(charged_time < medium_charge_time):
+			noose_swoosh_timer -= delta
+		elif(charged_time < max_charge_time):
+			noose_swoosh_timer -= delta * 1.5
+		elif(charged_time >= max_charge_time):
+			noose_swoosh_timer -= delta * 2
+			noose_swoosh = max_noose_swoosh
+		if(noose_swoosh_timer <= 0):
+			global.play_sound(noose_swoosh, -5, 0.0)
+			noose_swoosh_timer = noose_swoosh_timer_max
 	
 	if(Input.is_action_just_released("left_click")):
 		charging = false
@@ -445,6 +489,9 @@ func update_health(amount : int):
 		else:
 			heart_indicator.frame = 2
 		health_temp -= 2
+	
+	if(amount < 0):
+		global.play_sound(hit_sound)
 
 func _on_Player_swing_point_attached(point):
 	attach_timer = attach_timer_max

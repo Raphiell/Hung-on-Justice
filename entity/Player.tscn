@@ -1,16 +1,17 @@
-[gd_scene load_steps=16 format=2]
+[gd_scene load_steps=19 format=2]
 
 [ext_resource path="res://texture/player/hero_jump_noose.png" type="Texture" id=1]
 [ext_resource path="res://entity/Player.gd" type="Script" id=2]
 [ext_resource path="res://texture/cursor.png" type="Texture" id=3]
 [ext_resource path="res://texture/player/spin_normal.png" type="Texture" id=4]
 [ext_resource path="res://texture/player/dust.png" type="Texture" id=5]
+[ext_resource path="res://font/Cowboys.ttf" type="DynamicFontData" id=6]
 
 [sub_resource type="CapsuleShape2D" id=1]
 radius = 12.4881
 height = 20.4404
 
-[sub_resource type="Animation" id=10]
+[sub_resource type="Animation" id=2]
 resource_name = "falling"
 length = 0.3
 loop = true
@@ -40,8 +41,7 @@ tracks/1/keys = {
 "values": [ Vector2( 2.587, 19.354 ) ]
 }
 
-[sub_resource type="Animation" id=2]
-resource_name = "idle"
+[sub_resource type="Animation" id=3]
 length = 0.9
 loop = true
 step = 0.05
@@ -70,7 +70,7 @@ tracks/1/keys = {
 "values": [ Vector2( -1.931, 0 ) ]
 }
 
-[sub_resource type="Animation" id=8]
+[sub_resource type="Animation" id=4]
 resource_name = "idle_charging"
 length = 0.6
 loop = true
@@ -100,8 +100,7 @@ tracks/1/keys = {
 "values": [ Vector2( -1.182, -5.696 ), Vector2( -0.882, -1.949 ), Vector2( -2.231, -1.499 ), Vector2( -5.528, 0.15 ), Vector2( -3.28, -2.398 ), Vector2( -0.432, -5.546 ) ]
 }
 
-[sub_resource type="Animation" id=3]
-resource_name = "jump_down"
+[sub_resource type="Animation" id=5]
 length = 0.2
 step = 0.05
 tracks/0/type = "value"
@@ -129,8 +128,7 @@ tracks/1/keys = {
 "values": [ Vector2( -0.214332, 5.72449 ), Vector2( -5.79495, 20.7492 ), Vector2( 2.57599, 25.9006 ) ]
 }
 
-[sub_resource type="Animation" id=4]
-resource_name = "jump_up"
+[sub_resource type="Animation" id=6]
 length = 0.2
 step = 0.05
 tracks/0/type = "value"
@@ -158,7 +156,7 @@ tracks/1/keys = {
 "values": [ Vector2( -10.7317, -16.8127 ), Vector2( 1.71742, -0.714695 ), Vector2( -1.28753, 6.79768 ) ]
 }
 
-[sub_resource type="Animation" id=5]
+[sub_resource type="Animation" id=7]
 length = 0.8
 loop = true
 step = 0.08
@@ -187,11 +185,18 @@ tracks/1/keys = {
 "values": [ Vector2( -1.93099, 4.7965 ), Vector2( -4.62903, 0.749453 ), Vector2( -3.4299, 3.59738 ), Vector2( -2.49308, 2.69803 ), Vector2( -2.41278, 2.99781 ), Vector2( -2.33248, 3.29759 ), Vector2( -2.25219, 3.59738 ), Vector2( -5.01981, 3.1477 ), Vector2( -5.48911, 4.59665 ), Vector2( -2.51093, 5.8957 ) ]
 }
 
-[sub_resource type="CircleShape2D" id=6]
+[sub_resource type="DynamicFont" id=8]
+size = 11
+font_data = ExtResource( 6 )
+
+[sub_resource type="DynamicFont" id=9]
+size = 17
+font_data = ExtResource( 6 )
+
+[sub_resource type="CircleShape2D" id=10]
 radius = 11.4897
 
-[sub_resource type="Animation" id=7]
-resource_name = "Noose Charge"
+[sub_resource type="Animation" id=11]
 length = 0.4
 loop = true
 step = 0.025
@@ -208,8 +213,7 @@ tracks/0/keys = {
 "values": [ 0, 1, 2, 3 ]
 }
 
-[sub_resource type="Animation" id=9]
-resource_name = "dust_blow"
+[sub_resource type="Animation" id=12]
 length = 0.7
 loop = true
 tracks/0/type = "value"
@@ -245,12 +249,12 @@ smoothing_speed = 10.0
 scale = Vector2( 3.179, 1 )
 
 [node name="AnimationPlayer" type="AnimationPlayer" parent="Anim Container"]
-anims/falling = SubResource( 10 )
-anims/idle = SubResource( 2 )
-anims/idle_charging = SubResource( 8 )
-anims/jump_down = SubResource( 3 )
-anims/jump_up = SubResource( 4 )
-anims/run = SubResource( 5 )
+anims/falling = SubResource( 2 )
+anims/idle = SubResource( 3 )
+anims/idle_charging = SubResource( 4 )
+anims/jump_down = SubResource( 5 )
+anims/jump_up = SubResource( 6 )
+anims/run = SubResource( 7 )
 
 [node name="Health Container" type="CanvasLayer" parent="."]
 scale = Vector2( 2.5, 2.5 )
@@ -264,6 +268,32 @@ margin_left = 4.32261
 margin_top = 18.5317
 margin_right = 22.9146
 margin_bottom = 50.9717
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Remaining Gang Members" type="RichTextLabel" parent="Health Container"]
+margin_left = 14.0
+margin_top = 32.0
+margin_right = 153.0
+margin_bottom = 62.0
+custom_fonts/normal_font = SubResource( 8 )
+custom_colors/default_color = Color( 0.996078, 0.192157, 0.192157, 1 )
+text = "Remaining Gang Members"
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Number" type="RichTextLabel" parent="Health Container"]
+anchor_left = -0.000233889
+anchor_right = -0.000233889
+margin_left = 140.24
+margin_top = 35.0
+margin_right = 175.24
+margin_bottom = 57.0
+custom_fonts/normal_font = SubResource( 9 )
+custom_colors/default_color = Color( 0.996078, 0.192157, 0.192157, 1 )
+text = "31"
 __meta__ = {
 "_edit_use_anchors_": false
 }
@@ -286,14 +316,14 @@ collision_mask = 274
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Hitbox"]
 position = Vector2( 0, 6.97364 )
-shape = SubResource( 6 )
+shape = SubResource( 10 )
 
 [node name="Character" type="Sprite" parent="."]
 z_index = 100
 texture = ExtResource( 1 )
 vframes = 3
 hframes = 4
-frame = 7
+frame = 8
 
 [node name="Noose Charge Up" type="Sprite" parent="."]
 position = Vector2( 2.58677, 19.3536 )
@@ -304,7 +334,7 @@ hframes = 2
 
 [node name="AnimationPlayer" type="AnimationPlayer" parent="Noose Charge Up"]
 playback_speed = 0.75
-"anims/Noose Charge" = SubResource( 7 )
+"anims/Noose Charge" = SubResource( 11 )
 
 [node name="Dust" type="Sprite" parent="."]
 texture = ExtResource( 5 )
@@ -313,7 +343,7 @@ hframes = 3
 frame = 3
 
 [node name="AnimationPlayer" type="AnimationPlayer" parent="Dust"]
-anims/dust_blow = SubResource( 9 )
+anims/dust_blow = SubResource( 12 )
 [connection signal="enemy_attached" from="." to="." method="_on_Player_enemy_attached"]
 [connection signal="hit" from="." to="." method="_on_Player_hit"]
 [connection signal="swing_point_attached" from="." to="." method="_on_Player_swing_point_attached"]

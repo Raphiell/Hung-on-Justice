@@ -9,6 +9,8 @@ var pickup_timer : float = 0.2 # How many seconds before it can be picked up
 var pickupable = false
 var noosed = false
 
+var health_pickup_sound = preload("res://sound/health_pickup.wav")
+
 # Nodes
 onready var sprite = $Sprite
 
@@ -35,4 +37,5 @@ func _process(delta):
 		move_and_slide(movement_vector, Vector2.UP)
 
 func _on_Health_Pickup_pickup():
+	global.play_sound(health_pickup_sound, -20)
 	queue_free()

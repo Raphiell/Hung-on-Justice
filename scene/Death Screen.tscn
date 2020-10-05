@@ -1,7 +1,8 @@
-[gd_scene load_steps=3 format=2]
+[gd_scene load_steps=4 format=2]
 
-[ext_resource path="res://texture/death_screen.png" type="Texture" id=1]
+[ext_resource path="res://texture/ui/again_button.png" type="Texture" id=1]
 [ext_resource path="res://scene/Death Screen.gd" type="Script" id=2]
+[ext_resource path="res://texture/ui/death_screen.png" type="Texture" id=3]
 
 [node name="Death Screen" type="Control"]
 anchor_right = 1.0
@@ -14,10 +15,19 @@ __meta__ = {
 [node name="TextureRect" type="TextureRect" parent="."]
 margin_right = 40.0
 margin_bottom = 40.0
-texture = ExtResource( 1 )
+texture = ExtResource( 3 )
 __meta__ = {
 "_edit_use_anchors_": false
 }
 
-[node name="Camera2D" type="Camera2D" parent="TextureRect"]
-anchor_mode = 0
+[node name="Button" type="TextureRect" parent="."]
+margin_left = 325.946
+margin_top = 288.52
+margin_right = 725.946
+margin_bottom = 388.52
+texture = ExtResource( 1 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+[connection signal="mouse_entered" from="Button" to="." method="_on_Button_mouse_entered"]
+[connection signal="mouse_exited" from="Button" to="." method="_on_Button_mouse_exited"]

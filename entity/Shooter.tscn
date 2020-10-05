@@ -1,7 +1,8 @@
-[gd_scene load_steps=8 format=2]
+[gd_scene load_steps=9 format=2]
 
 [ext_resource path="res://entity/Shooter.gd" type="Script" id=1]
 [ext_resource path="res://texture/enemy/enemy_shoot.png" type="Texture" id=2]
+[ext_resource path="res://sound/enemy_shoot.wav" type="AudioStream" id=3]
 
 [sub_resource type="CapsuleShape2D" id=1]
 radius = 7.72423
@@ -11,7 +12,7 @@ height = 37.9828
 radius = 13.7293
 height = 51.2221
 
-[sub_resource type="Animation" id=5]
+[sub_resource type="Animation" id=3]
 resource_name = "aim"
 step = 0.05
 tracks/0/type = "value"
@@ -44,8 +45,7 @@ tracks/0/keys = {
 "values": [ 0, 2, 3, 4, 5, 6, 7, 4, 3, 2, 1, 0 ]
 }
 
-[sub_resource type="Animation" id=3]
-resource_name = "walk"
+[sub_resource type="Animation" id=5]
 loop = true
 tracks/0/type = "value"
 tracks/0/path = NodePath("Sprite:frame")
@@ -90,12 +90,15 @@ cast_to = Vector2( 200, 0 )
 collision_mask = 36
 
 [node name="AnimationPlayer" type="AnimationPlayer" parent="."]
-anims/aim = SubResource( 5 )
+anims/aim = SubResource( 3 )
 anims/shoot = SubResource( 4 )
-anims/walk = SubResource( 3 )
+anims/walk = SubResource( 5 )
 
 [node name="Shoot Point" type="Node2D" parent="."]
 position = Vector2( 14.4599, -12.6524 )
+
+[node name="AudioStreamPlayer" type="AudioStreamPlayer" parent="."]
+stream = ExtResource( 3 )
 [connection signal="kill" from="." to="." method="_on_Shooter_kill"]
 [connection signal="area_entered" from="Hitbox" to="." method="_on_Hitbox_area_entered"]
 [connection signal="animation_finished" from="AnimationPlayer" to="." method="_on_AnimationPlayer_animation_finished"]

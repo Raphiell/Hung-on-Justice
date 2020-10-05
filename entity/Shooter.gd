@@ -6,6 +6,8 @@ enum states {
 	shooting
 }
 
+export(bool) var gang_member = true
+
 var state = states.walking
 
 var type = "Enemy"
@@ -14,12 +16,12 @@ var type = "Enemy"
 var is_grabbed : bool = false
 
 # Facing
-var facing = 1
+var facing = -1
 
 # Attacking
 var attack_cooldown_timer_max = 0.5
 var attack_cooldown_timer = 0
-var vision_range = 150
+var vision_range = 200
 var bullet_scene = preload("res://entity/Bullet.tscn")
 
 # Animation
@@ -32,12 +34,16 @@ var shoot_texture = preload("res://texture/enemy/enemy_shoot.png")
 var movement_vector : Vector2 = Vector2(-1, 0)
 var movement_speed : float = 35
 export(bool) var moves = true
+export(float) var footstep_timer_max = 0.55
+var footstep_timer : float = 0.1
+var footstep_sound = preload("res://sound/player_footstep.wav")
 
 # Death
 var health_pickup_scene = preload("res://entity/Health Pickup.tscn")
 var death_launch_speed : float = 50
 var shooter_corpse_scene = preload("res://entity/Shooter Corpse.tscn")
 export(bool) var always_drop_health = false
+var death_sound = preload("res://sound/enemy_hit.wav")
 
 # Nodes
 onready var sprite = $Sprite
@@ -46,11 +52,13 @@ onready var ray = $RayCast2D
 onready var anim = $AnimationPlayer
 onready var shoot_point = $"Shoot Point"
 onready var hitbox = $Hitbox
+onready var audio = $AudioStreamPlayer
 
 signal kill
 
 func _ready():
-	pass
+	if(gang_member):
+		global.gang_members_remaining += 1
 
 func _process(delta):
 	if(state == states.aiming):
@@ -75,7 +83,9 @@ func _process(delta):
 				shoot_animation_timer = shoot_animation_timer_max
 		else:
 			state = states.walking
-			movement_vector.x = (randi() % 2) - 1
+			movement_vector.x = (randi() % 3) - 1
+			if(movement_vector.x == 0):
+				movement_vector.x += 1
 	elif(state == states.walking):
 		if(moves):
 			anim.play("walk")
@@ -87,6 +97,30 @@ func _process(delta):
 				movement_vector.y += global.GRAVITY
 			else:
 				movement_vector.y = 0
+			
+			if(footstep_timer >= 0):
+				footstep_timer -= delta
+				if(footstep_timer <= 0):
+					footstep_timer = footstep_timer_max
+					var distance_to_player = global_transform.origin.distance_to(global.player.global_transform.origin)
+					var footstep_volume
+					if(distance_to_player > 250):
+						footstep_volume = -80
+					elif(distance_to_player > 150):
+						footstep_volume = -45
+					elif(distance_to_player > 125):
+						footstep_volume = -40
+					elif(distance_to_player > 100):
+						footstep_volume = -35
+					elif(distance_to_player > 75):
+						footstep_volume = -30
+					elif(distance_to_player > 50):
+						footstep_volume = -25
+					elif(distance_to_player > 30):
+						footstep_volume = -20
+					else:
+						footstep_volume = -15
+					global.play_sound(footstep_sound, footstep_volume)
 		
 			move_and_slide(Vector2(movement_vector.x * movement_speed, movement_vector.y), Vector2.UP)
 		else:
@@ -119,6 +153,7 @@ func shoot():
 	var shooting_origin = shoot_point.transform.origin
 	shooting_origin.x *= facing
 	bullet.global_transform.origin = global_transform.origin + shooting_origin
+	audio.play(0)
 
 func _on_Shooter_kill(launch_vector : Vector2):
 	var blood_particles = global.blood_particles.instance()
@@ -127,8 +162,8 @@ func _on_Shooter_kill(launch_vector : Vector2):
 	get_tree().root.add_child(blood_particles)
 	blood_particles.global_transform.origin = rope_point.global_transform.origin
 	
-	# 1 in 3 chance
-	if(randi() % 2 == 0 or always_drop_health):
+	# 1 in 4 chance
+	if(randi() % 3 == 0 or always_drop_health):
 		var health_pickup = health_pickup_scene.instance()
 		get_tree().root.add_child(health_pickup)
 		health_pickup.global_transform.origin = global_transform.origin
@@ -139,6 +174,8 @@ func _on_Shooter_kill(launch_vector : Vector2):
 	corpse.facing = facing
 	corpse.global_transform.origin = global_transform.origin
 	
+	global.play_sound(death_sound)
+	global.gang_members_remaining -= 1
 	queue_free()
 
 func _on_AnimationPlayer_animation_finished(anim_name):
