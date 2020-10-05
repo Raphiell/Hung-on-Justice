@@ -66,7 +66,7 @@ func _physics_process(delta):
 		queue_free()
 
 func return_noose():
-	if(is_instance_valid(grabbed_enemy)):
+	if(is_instance_valid(grabbed_enemy) and grabbed_enemy.get("type") == "Enemy"):
 		grabbed_enemy.is_grabbed = false
 		grabbed_enemy = null
 	state = states.returning

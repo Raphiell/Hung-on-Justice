@@ -379,7 +379,7 @@ func regular_state(delta):
 		charged_time = 0
 		noose_spin.texture = noose_texture
 
-	dust.visible = false
+	#dust.visible = false
 	
 	if(charging):
 		charged_time += delta
@@ -403,7 +403,7 @@ func regular_state(delta):
 	elif(charged_time >= max_charge_time):
 		noose_anim.playback_speed = 2.2
 		noose_spin.texture = mega_noose_texture
-		dust.visible = true
+		#dust.visible = true
 	
 	
 	# Check for enemy kill if buffer is still up
@@ -438,10 +438,10 @@ func check_for_things(able_to_kill : bool):
 			area.get_parent().emit_signal("pickup")
 			update_health(2)
 		elif(area.get_parent().get("type") == "Kill Zone"):
-			print("Kill me plz")
 			for respawn_point in get_tree().get_nodes_in_group(global.respawn_group):
 				if(respawn_point.get("respawn_id") == area.get_parent().get("respawn_id")):
 					global_transform.origin = respawn_point.global_transform.origin
+					update_health(-1)
 
 func jump():
 	# If you are on the floor

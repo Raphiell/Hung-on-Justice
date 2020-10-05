@@ -1,6 +1,6 @@
 extends Node2D
 
-var music_fade_in_timer_max = 2
+var music_fade_in_timer_max = 4
 var music_fade_in_timer = music_fade_in_timer_max
 
 var slow_song = preload("res://music/main_slow.wav")
@@ -19,7 +19,7 @@ func _ready():
 	music.volume_db = -80
 	music.stream = current_song
 	music.play()
-	
+	$AnimationPlayer.play("fade_in")
 
 func _process(delta):
 	if(music_fade_in_timer > 0):
