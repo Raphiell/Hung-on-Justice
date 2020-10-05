@@ -72,6 +72,7 @@ func _on_Hitbox_area_entered(area):
 			state = states.attached
 			global_transform.origin = area.get_parent().get_node("Rope Point").global_transform.origin
 			global.player.emit_signal("enemy_attached", global_transform.origin)
+			area.get_parent().is_grabbed = true
 		if(area.get_parent().get("type") == "Health Pickup" and area.get_parent().get("pickupable")):
 			state = states.return_with_item
 			grabbed_item = area.get_parent()

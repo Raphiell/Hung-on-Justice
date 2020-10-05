@@ -46,7 +46,7 @@ var facing : int = 1
 onready var idle_texture = preload("res://texture/player/hero_standing.png")
 onready var charging_idle_texture = preload("res://texture/player/hero_standing_charge.png")
 onready var run_texture = preload("res://texture/player/hero_running.png")
-#onready var charging_run_texture = preload("res://texture/player/hero_running_charge.png")
+onready var charging_run_texture = preload("res://texture/player/hero_running_charge.png")
 onready var jump_texture = preload("res://texture/player/hero_jump_noose.png")
 onready var charging_jump_texture = preload("res://texture/player/hero_jump_normal.png")
 var falling_anim_played = false
@@ -76,15 +76,16 @@ var swing_acceleration = 5
 var noose = null
 export(float) var attach_timer_max = 1
 var attach_timer = 0
+var weak_noose_texture = preload("res://texture/player/spin_weak.png")
 var noose_texture = preload("res://texture/player/spin_normal.png")
 var mega_noose_texture = preload("res://texture/player/spin_power.png")
 
 # Attacking
 export(float) var kill_buffer_max = 0.2 # Number of seconds you can still kill after hitting the ground
 var kill_buffer = 0
-export(float) var low_charge_time = 0.3
-export(float) var medium_charge_time = 0.7
-export(float) var max_charge_time = 1.5
+export(float) var low_charge_time = 0.5
+export(float) var medium_charge_time = 0.8
+export(float) var max_charge_time = 1.2
 var charged_time : float = 0
 var charging : bool = false
 
@@ -104,6 +105,8 @@ onready var hitbox = $Hitbox
 onready var health_control = $"Health Container/Health"
 onready var noose_spin = $"Noose Charge Up"
 onready var noose_anim = $"Noose Charge Up/AnimationPlayer"
+onready var dust = $Dust
+onready var dust_anim = $Dust/AnimationPlayer
 
 # Signals
 signal swing_point_attached
@@ -115,6 +118,7 @@ func _ready():
 	Input.set_mouse_mode(Input.MOUSE_MODE_HIDDEN)
 	anim.play("idle")
 	noose_anim.play("Noose Charge")
+	dust_anim.play("dust_blow")
 	global.player = self
 	update_health(0)
 	original_collision_mask = collision_mask
@@ -246,7 +250,7 @@ func regular_state(delta):
 	# Animation
 	if(falling):
 		anim.playback_speed = 1
-		if(charging):
+		if(charging or !noose_available):
 			character_sprite.texture = charging_jump_texture
 		else:
 			character_sprite.texture = jump_texture
@@ -258,7 +262,10 @@ func regular_state(delta):
 			falling_anim_played = true
 	elif((abs(movement_vector.x) > 50 or lateral_input != 0) and !jumping and !swinging):
 		anim.playback_speed = 1
-		character_sprite.texture = run_texture
+		if(charging or !noose_available):
+			character_sprite.texture = charging_run_texture
+		else:
+			character_sprite.texture = run_texture
 		character_sprite.vframes = 4
 		character_sprite.hframes = 3
 		character_sprite.position.y = 7
@@ -287,7 +294,7 @@ func regular_state(delta):
 			anim.play("idle")
 	elif(jumping or swinging):
 		anim.playback_speed = 1
-		if(charging):
+		if(charging or !noose_available):
 			character_sprite.texture = charging_jump_texture
 		else:
 			character_sprite.texture = jump_texture
@@ -296,9 +303,11 @@ func regular_state(delta):
 		character_sprite.position.y = 0
 		
 	# Noose
-	if(Input.is_action_just_pressed("left_click") and noose_available):
+	if(Input.is_action_pressed("left_click") and noose_available and !charging):
 		charging = true
 		charged_time = 0
+	else:
+		pass
 	
 	if(Input.is_action_just_released("left_click")):
 		charging = false
@@ -326,6 +335,7 @@ func regular_state(delta):
 		charged_time = 0
 		noose_spin.texture = noose_texture
 
+	dust.visible = false
 	
 	if(charging):
 		charged_time += delta
@@ -339,13 +349,17 @@ func regular_state(delta):
 	
 	if(charged_time > 0 and charged_time < low_charge_time):
 		noose_anim.playback_speed = 0.7
+		noose_spin.texture = weak_noose_texture
 	elif(charged_time < medium_charge_time):
 		noose_anim.playback_speed = 1.1
+		noose_spin.texture = noose_texture
 	elif(charged_time < max_charge_time):
 		noose_anim.playback_speed = 1.7
+		noose_spin.texture = noose_texture
 	elif(charged_time >= max_charge_time):
 		noose_anim.playback_speed = 2.2
 		noose_spin.texture = mega_noose_texture
+		dust.visible = true
 	
 	
 	# Check for enemy kill if buffer is still up
@@ -472,3 +486,7 @@ func _on_Player_hit():
 #		var key = animation.track_get_key_value(current_track, i)
 #		var flipped_key = Vector2(key.x * facing, key.y)
 #		animation.track_set_key_value(current_track, i, flipped_key)
+
+func _on_AnimationPlayer_animation_finished(anim_name):
+	if(anim_name == "jump_down"):
+		anim.play("falling")

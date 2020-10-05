@@ -10,8 +10,8 @@ var state = states.walking
 
 var type = "Enemy"
 
-# Hit
-var hit = false
+# Grab
+var is_grabbed : bool = false
 
 # Facing
 var facing = 1
@@ -97,7 +97,7 @@ func _process(delta):
 		ray.force_raycast_update()
 		if(ray.get_collider() and ray.get_collider().get("type") == "Player"):
 			state = states.aiming
-	elif(state == states.shooting):
+	elif(state == states.shooting and !is_grabbed):
 		var x_to_player = sign(global.player.global_transform.origin.x - global_transform.origin.x)
 		facing = x_to_player
 		anim.play("shoot")

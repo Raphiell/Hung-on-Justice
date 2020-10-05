@@ -1,0 +1,79 @@
+[gd_scene load_steps=7 format=2]
+
+[ext_resource path="res://entity/Player.tscn" type="PackedScene" id=1]
+[ext_resource path="res://entity/Swing Point.tscn" type="PackedScene" id=2]
+[ext_resource path="res://texture/environment/ground_top.png" type="Texture" id=3]
+[ext_resource path="res://texture/background/background_dusk.png" type="Texture" id=4]
+[ext_resource path="res://texture/background/background_terrain.png" type="Texture" id=5]
+
+[sub_resource type="RectangleShape2D" id=1]
+extents = Vector2( 806.013, 12.3472 )
+
+[node name="Main" type="Node2D"]
+
+[node name="Player" parent="." instance=ExtResource( 1 )]
+position = Vector2( -231.9, -36.2095 )
+
+[node name="ParallaxBackground" type="ParallaxBackground" parent="."]
+
+[node name="Sun" type="ParallaxLayer" parent="ParallaxBackground"]
+motion_scale = Vector2( 0, 0.1 )
+
+[node name="Sprite" type="Sprite" parent="ParallaxBackground/Sun"]
+position = Vector2( 0, -263 )
+texture = ExtResource( 4 )
+
+[node name="Terrain" type="ParallaxLayer" parent="ParallaxBackground"]
+motion_scale = Vector2( 0, 0.1 )
+
+[node name="Sprite" type="Sprite" parent="ParallaxBackground/Terrain"]
+position = Vector2( 0, -559.922 )
+scale = Vector2( 1, 3 )
+texture = ExtResource( 5 )
+
+[node name="Sprite" type="Sprite" parent="."]
+position = Vector2( -48, 88 )
+scale = Vector2( 2, 2 )
+texture = ExtResource( 3 )
+
+[node name="Sprite3" type="Sprite" parent="."]
+position = Vector2( -176, 88 )
+scale = Vector2( 2, 2 )
+texture = ExtResource( 3 )
+
+[node name="Sprite4" type="Sprite" parent="."]
+position = Vector2( -304, 88 )
+scale = Vector2( 2, 2 )
+texture = ExtResource( 3 )
+
+[node name="Sprite5" type="Sprite" parent="."]
+position = Vector2( 208, 88 )
+scale = Vector2( 2, 2 )
+texture = ExtResource( 3 )
+
+[node name="Sprite2" type="Sprite" parent="."]
+position = Vector2( 80, 88 )
+scale = Vector2( 2, 2 )
+texture = ExtResource( 3 )
+
+[node name="Swing Point" parent="." instance=ExtResource( 2 )]
+position = Vector2( -177.608, -94.213 )
+
+[node name="Swing Point3" parent="." instance=ExtResource( 2 )]
+position = Vector2( 11.3412, -250.504 )
+
+[node name="Swing Point4" parent="." instance=ExtResource( 2 )]
+position = Vector2( -176.442, -349.645 )
+
+[node name="Swing Point5" parent="." instance=ExtResource( 2 )]
+position = Vector2( 194.459, -360.142 )
+
+[node name="Swing Point2" parent="." instance=ExtResource( 2 )]
+position = Vector2( 193.777, -103.056 )
+
+[node name="StaticBody2D" type="StaticBody2D" parent="."]
+collision_layer = 33
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="StaticBody2D"]
+position = Vector2( -15.0631, 37.1032 )
+shape = SubResource( 1 )
